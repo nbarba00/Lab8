@@ -50,12 +50,14 @@ int main() {
     // Display level order traversal
     printf("Level Order Traversal: ");
     levelOrder(bst.root);
+    printf("\n");
 
     // Replace node values with the sum of their children
     replace(bst.root);
 
-    printf("\nModified Level Order Traversal: ");
+    printf("Modified Level Order Traversal: ");
     levelOrder(bst.root);
+    printf("\n");
 
     // Insert random elements into another binary search tree
     bstRandom.root = insert(bstRandom.root, randomValue());
@@ -63,8 +65,9 @@ int main() {
         insert(bstRandom.root, randomValue());
     }
 
-    printf("\nRandom BST Level Order Traversal: ");
+    printf("Random BST Level Order Traversal: ");
     levelOrder(bstRandom.root);
+    printf("\n");
 
     // Additional menu-based operations can be added here
 
@@ -143,5 +146,71 @@ void levelOrder(TreeNode* root) {
 
     while (front < rear) {
         TreeNode* current = queue[front++];
+        printf("%d ", current->value);
 
-        printf("%
+        if (current->left)
+            queue[rear++] = current->left;
+        if (current->right)
+            queue[rear++] = current->right;
+    }
+}
+
+// Function to search for a value in the binary search tree
+TreeNode* search(TreeNode* root, int value) {
+    if (root == NULL || root->value == value)
+        return root;
+
+    if (root->value < value)
+        return search(root->right, value);
+
+    return search(root->left, value);
+}
+
+// Function to delete a node from the binary search tree
+TreeNode* deleteNode(TreeNode* root, int value) {
+    if (root == NULL)
+        return root;
+
+    if (value < root->value)
+        root->left = deleteNode(root->left, value);
+    else if (value > root->value)
+        root->right = deleteNode(root->right, value);
+    else {
+        if (root->left == NULL) {
+            TreeNode* temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            TreeNode* temp = root->left;
+            free(root);
+            return temp;
+        }
+
+        TreeNode* temp = root->right;
+        while (temp && temp->left != NULL)
+            temp = temp->left;
+
+        root->value = temp->value;
+        root->right = deleteNode(root->right, temp->value);
+    }
+    return root;
+}
+
+// Function to replace node values with the sum of their children
+int replace(TreeNode* root) {
+    if (root == NULL)
+        return 0;
+
+    int leftSum = replace(root->left);
+    int rightSum = replace(root->right);
+
+    int temp = root->value;
+    root->value = leftSum + rightSum;
+
+    return temp + root->value;
+}
+
+// Function to generate a random value
+int randomValue() {
+    return rand() % 100;
+}
